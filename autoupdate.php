@@ -87,6 +87,20 @@ for ($i = 1; $i <= 10; $i++) {
             } elseif ($row2['sex'] == '1') {
                 file_get_contents('http://bot.mew.su/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
             }
+
+
+            // Эмулируем прочтение сообщения + набор текста + пауза до отправки //
+            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $token . "&peer_id=" . $uid);
+            sleep(4);
+            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $token . "&user_id=" . $uid . "&type=typing");
+            sleep(5);
+
+            // Получаем ответ на сообщение //
+            $mes = file_get_contents('http://bot.mew.su/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
+
+            // Отсылаем сообщение //
+            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);
+            sleep(1);
         }
     }
 
