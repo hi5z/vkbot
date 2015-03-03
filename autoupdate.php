@@ -1,10 +1,4 @@
 <?
-//ignore_user_abort(true);
-//set_time_limit(0);
-
-// Отображать все ошибки или нет//
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
 
 require_once "classes.php";
 require_once "config.php";
@@ -55,7 +49,7 @@ for ($i = 1; $i <= 10; $i++) {
             sleep(5);
 
             // Получаем ответ на сообщение //
-            $mes = file_get_contents('http://bot.mew.su/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
+            $mes = file_get_contents('http://'.$URL.'/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
 
             // Отсылаем сообщение //
             $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);
@@ -67,7 +61,7 @@ for ($i = 1; $i <= 10; $i++) {
             $firstname = $vkprofileinfo->response[0]->first_name;
             $secondname = $vkprofileinfo->response[0]->last_name;
             $sex = $vkprofileinfo->response[0]->sex;
-            $chatid = file_get_contents('http://bot.mew.su/showmeid.php?id=' . $uid);
+            $chatid = file_get_contents('http://'.$URL.'/showmeid.php?id=' . $uid);
 
 
 
@@ -79,13 +73,13 @@ for ($i = 1; $i <= 10; $i++) {
             $row2 = mysqli_fetch_array($result2);
 
             // Устанавливаем имя //
-            file_get_contents('http://bot.mew.su/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('!botsetname ' . $row2['firstname']));
+            file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('!botsetname ' . $row2['firstname']));
 
             // Устанавливаем пол //
             if ($row2['sex'] == '2'){
-                file_get_contents('http://bot.mew.su/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
+                file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
             } elseif ($row2['sex'] == '1') {
-                file_get_contents('http://bot.mew.su/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
+                file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
             }
 
 
@@ -96,7 +90,7 @@ for ($i = 1; $i <= 10; $i++) {
             sleep(5);
 
             // Получаем ответ на сообщение //
-            $mes = file_get_contents('http://bot.mew.su/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
+            $mes = file_get_contents('http://'.$URL.'/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
 
             // Отсылаем сообщение //
             $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);

@@ -3,6 +3,8 @@
 $link = mysqli_connect("HOST","USER","PASSWORD","DATABASENAME") or die("Error " . mysqli_error($link)); 
 mysqli_set_charset($link,"utf8");
 
+$URL = $_SERVER['HTTP_HOST'];
+
 // // Variables // //
 // Уникальный token профиля вконтакте //
 $token = "VKAPI TOKEN";
