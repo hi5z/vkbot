@@ -1,25 +1,29 @@
 <?
+// Отображать все ошибки или нет//
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
 require_once "classes.php";
 require_once "config.php";
+require_once "antigate.php";
 
 // Получаем диалоги //
-$input = json_decode(file_get_contents("https://api.vk.com/method/messages.getDialogs?count=10&access_token=" . $token));
+$input = json_decode(file_get_contents("https://api.vk.com/method/messages.getDialogs?count=20&access_token=" . $config['token']));
 
 // Профиль онлайн, когда скрипт работает //
-file_get_contents("https://api.vk.com/method/account.setOnline?access_token=" . $token);
+file_get_contents("https://api.vk.com/method/account.setOnline?access_token=" . $config['token']);
 
 
 $i = 0;
-for ($i = 1; $i <= 10; $i++) {
+for ($i = 1; $i <= 20; $i++) {
     // Выводим список последних сообщений // ?>
-<div class="panel panel-default">
-    <div class="panel-heading">Отправил <?=$input->response[$i]->uid?> в <?=gmdate("Y-m-d\TH:i:s\Z", $input->response[$i]->date)?> <? if ($input->response[$i]->read_state == '0')  {echo '<span class="label label-danger">Не прочитано</span>';} else {echo '<span class="label label-success">Прочитано</span>';} ?> <? if ($input->response[$i]->out == '1') {echo '<span class="label label-primary">Ответ отправлен</span>';}?></div>
-    <div class="panel-body">
-        <?=$input->response[$i]->body?>
+    <div class="panel panel-default">
+        <div class="panel-heading">Отправил <?=$input->response[$i]->uid?> в <?=gmdate("Y-m-d\TH:i:s\Z", $input->response[$i]->date)?> <? if ($input->response[$i]->read_state == '0')  {echo '<span class="label label-danger">Не прочитано</span>';} else {echo '<span class="label label-success">Прочитано</span>';} ?> <? if ($input->response[$i]->out == '1') {echo '<span class="label label-primary">Ответ отправлен</span>';}?></div>
+        <div class="panel-body">
+            <?=$input->response[$i]->body?>
+        </div>
     </div>
-</div>
-<?
+    <?
 
     if ($input->response[$i]->out == '0') {
         // VK USER ID CONST //
@@ -31,37 +35,43 @@ for ($i = 1; $i <= 10; $i++) {
 
         $vkmessage = $input->response[$i]->body;
 
-        /* if ($vkmessage[0] == '/'){
-            // Эмулируем прочтение сообщения + набор текста + пауза до отправки //
-            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $token . "&peer_id=" . $uid);
-            sleep(4);
-            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $token . "&user_id=" . $uid . "&type=typing");
-            sleep(5);
+        if ($row['vkid'] == $uid) {
 
-            $mes = cmd(substr($vkmessage, 1));
-            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);
-        }
-        else*/if ($row['vkid'] == $uid) {
+
             // Эмулируем прочтение сообщения + набор текста + пауза до отправки //
-            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $token . "&peer_id=" . $uid);
-            sleep(4);
-            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $token . "&user_id=" . $uid . "&type=typing");
-            sleep(5);
+            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $config['token'] . "&peer_id=" . $uid);
+            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $config['token'] . "&user_id=" . $uid . "&type=typing");
+            sleep(3);
 
             // Получаем ответ на сообщение //
-            $mes = file_get_contents('http://'.$URL.'/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
+            $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
 
             // Отсылаем сообщение //
-            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);
+            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid);
+
+            if (json_decode($res->error->error_code == '14'))
+            {
+                // Загружаем капчу на сервер //
+                file_put_contents("captcha/captcha.jpg", file_get_contents($res->error->captcha_img));
+
+                // Уникальный ID капчи //
+                $captcha['id'] = $res->error->captcha_sid;
+                $captcha['key'] = recognize("captcha/captcha.jpg", $config['antigate'], false, "antigate.com");
+
+                // Повторяем отправку вместе с разгаданной капчей //
+                $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid . "captcha_sid=" . $captcha['id'] . "&captcha_key=" . $captcha['key']);
+            }
             sleep(1);
-        } else {
+
+
+        } elseif ($row['vkid'] !== $uid) {
 
             // Если мы еще не общались с этим профилем - добавляем его в базу и отсылаем боту имя //
             $vkprofileinfo = json_decode(file_get_contents("https://api.vk.com/method/users.get?name_case=nom&fields=sex&user_ids=" . $uid), true);
             $firstname = $vkprofileinfo->response[0]->first_name;
             $secondname = $vkprofileinfo->response[0]->last_name;
             $sex = $vkprofileinfo->response[0]->sex;
-            $chatid = file_get_contents('http://'.$URL.'/showmeid.php?id=' . $uid);
+            $chatid = file_get_contents($config['url'] . '/showmeid.php?id=' . $uid);
 
 
 
@@ -73,31 +83,28 @@ for ($i = 1; $i <= 10; $i++) {
             $row2 = mysqli_fetch_array($result2);
 
             // Устанавливаем имя //
-            file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('!botsetname ' . $row2['firstname']));
+            file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('!botsetname ' . $row2['firstname']));
 
             // Устанавливаем пол //
             if ($row2['sex'] == '2'){
-                file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
+                file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
             } elseif ($row2['sex'] == '1') {
-                file_get_contents('http://'.$URL.'/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
+                file_get_contents($config['url'] . 'sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
             }
 
 
             // Эмулируем прочтение сообщения + набор текста + пауза до отправки //
-            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $token . "&peer_id=" . $uid);
-            sleep(4);
-            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $token . "&user_id=" . $uid . "&type=typing");
-            sleep(5);
+            file_get_contents("https://api.vk.com/method/messages.markAsRead?access_token=" . $config['token'] . "&peer_id=" . $uid);
+            file_get_contents("https://api.vk.com/method/messages.setActivity?access_token=" . $config['token'] . "&user_id=" . $uid . "&type=typing");
+            sleep(3);
 
             // Получаем ответ на сообщение //
-            $mes = file_get_contents('http://'.$URL.'/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
+            $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($vkmessage));
 
             // Отсылаем сообщение //
-            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $token . "&message=" . urlencode($mes) . "&uid=" . $uid);
+            $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid);
             sleep(1);
         }
     }
 
-    // Еще немного timeout для того, чтобы не было капчи //
-    sleep(3);
 }

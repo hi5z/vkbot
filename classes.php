@@ -39,14 +39,13 @@ function cmd($cmd)
 
     if ($cmd == 'status') {$resp = 'хуятус';}
     if ($cmd == 'help') {$resp = 'Нет доступных команд.';}
-    //if ($cmd == 'curr') {$resp = currencies();}
 
     return $resp;
 }
 
 function initme($vkid, $key)
 {
-    $getuid = file_get_contents('http://iii.ru/api/2.0/json/Chat.init/6804a238-2f99-4e1a-9a38-d90b71401b88/' . $vkid);
+    $getuid = file_get_contents('http://iii.ru/api/2.0/json/Chat.init/'. $config['botid'] .'/' . $vkid);
     $jsonparam = json_decode(base64_decode(XORFUNC::XOR_decrypt($getuid, $key)));
 
     return $jsonparam;

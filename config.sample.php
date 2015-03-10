@@ -3,14 +3,18 @@
 $link = mysqli_connect("HOST","USER","PASSWORD","DATABASENAME") or die("Error " . mysqli_error($link)); 
 mysqli_set_charset($link,"utf8");
 
-$URL = $_SERVER['HTTP_HOST'];
-
 // // Variables // //
+// ANTIGATE.COM КЛЮЧ //
+$config['antigate'] = "-- YOUR ANTIGATE KEY HERE --";
+
 // Уникальный token профиля вконтакте //
-$token = "VKAPI TOKEN";
+$config['token'] = "-- ТОКЕН ВАШЕГО ПРОФИЛЯ НА ВК --";
 
 // Ключ для декриптования ответов с iii.ru //
-$key = "some very-very long string without any non-latin characters due to different string representations inside of variable programming languages";
+$config['key'] = "some very-very long string without any non-latin characters due to different string representations inside of variable programming languages";
 
 // ID БОТА НА САЙТЕ iii.ru //
-$botid = '6804a238-2f99-4e1a-9a38-d90b71401b88';
+$config['botid'] = '-- ID БОТА С САЙТА iii.ru --';
+
+// URL ХОСТА //
+$config['url'] = 'http://' . $_SERVER['HTTP_HOST'];

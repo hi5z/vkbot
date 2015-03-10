@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
 require_once "classes.php";
 require_once "config.php";
@@ -14,7 +14,9 @@ if (isset($_GET['session'])) {
 }
 // Отсылаем текст и получаем ответ //
 $whattosend = '["' . $session . '","' . urldecode($text) . '"]';
-$hashed = XORFUNC::XOR_encrypt(base64_encode($whattosend), $key);
+$hashed = XORFUNC::XOR_encrypt(base64_encode($whattosend), $config['key']);
+
+
 
 $myCurl = curl_init();
 curl_setopt_array($myCurl, array(
@@ -27,35 +29,9 @@ $response = curl_exec($myCurl);
 curl_close($myCurl);
 
 
-$answer = json_decode(base64_decode(XORFUNC::XOR_decrypt($response, $key)));
+$answer = json_decode(base64_decode(XORFUNC::XOR_decrypt($response, $config['key'])));
 
 echo $answer->result->text->value;
-
-// Озвучивание ответов если параметр tts = yes //
-if (isset($_GET['tts']) AND $_GET['tts'] == 'yes') {
-
-    $text = $answer->result->text->value;
-
-    $text = urlencode($text);
-    $lang = urldecode("ru");
-    $file = "audio/" . md5($text) . ".mp3";
-    if (!file_exists($file) || filesize($file) == 0) {
-        $mp3 = file_get_contents('http://tts.voicetech.yandex.net/tts?format=mp3&quality=hi&platform=web&application=translate&lang=ru_RU&text=' . $text);
-
-        if (file_put_contents($file, $mp3)) {
-            echo "<!-- Saved -->";
-        } else {
-            echo "<!-- Wasn't able to save it ! -->";
-        }
-    } else {
-        echo "<!-- Already exist -->";
-    }
     ?>
 
-
-    <audio controls="controls" autoplay="autoplay">
-        <source src="<? echo $file; ?>" type="audio/mp3"/>
-    </audio>
-
-<? } ?>
 
