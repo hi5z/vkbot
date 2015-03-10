@@ -13,9 +13,12 @@ $input = json_decode(file_get_contents("https://api.vk.com/method/messages.getDi
 // Профиль онлайн, когда скрипт работает //
 file_get_contents("https://api.vk.com/method/account.setOnline?access_token=" . $config['token']);
 
+$messagescount = $input->response[0];
 
-$i = 0;
-for ($i = 1; $i <= 20; $i++) {
+?>
+<h3>История сообщений</h3>
+<?
+for ($i = 1; $i <= $messagescount; $i++) {
     // Выводим список последних сообщений // ?>
     <div class="panel panel-default">
         <div class="panel-heading">Отправил <?=$input->response[$i]->uid?> в <?=gmdate("Y-m-d\TH:i:s\Z", $input->response[$i]->date)?> <? if ($input->response[$i]->read_state == '0')  {echo '<span class="label label-danger">Не прочитано</span>';} else {echo '<span class="label label-success">Прочитано</span>';} ?> <? if ($input->response[$i]->out == '1') {echo '<span class="label label-primary">Ответ отправлен</span>';}?></div>
@@ -25,7 +28,7 @@ for ($i = 1; $i <= 20; $i++) {
     </div>
     <?
 
-    if ($input->response[$i]->out == '0') {
+    if ($input->response[$i]->out == '0' AND !in_array($input->response[$i]->uid, $debug)) {
         // VK USER ID CONST //
         $uid = $input->response[$i]->uid;
 
@@ -34,6 +37,7 @@ for ($i = 1; $i <= 20; $i++) {
         $row = mysqli_fetch_array($result);
 
         $vkmessage = $input->response[$i]->body;
+
 
         if ($row['vkid'] == $uid) {
 
@@ -49,6 +53,8 @@ for ($i = 1; $i <= 20; $i++) {
             // Отсылаем сообщение //
             $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid);
 
+
+            if ($config['antigate'] !== NULL){
             if (json_decode($res->error->error_code == '14'))
             {
                 // Загружаем капчу на сервер //
@@ -61,8 +67,10 @@ for ($i = 1; $i <= 20; $i++) {
                 // Повторяем отправку вместе с разгаданной капчей //
                 $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid . "captcha_sid=" . $captcha['id'] . "&captcha_key=" . $captcha['key']);
             }
+            }
             sleep(1);
 
+            exit();
 
         } elseif ($row['vkid'] !== $uid) {
 
@@ -104,6 +112,8 @@ for ($i = 1; $i <= 20; $i++) {
             // Отсылаем сообщение //
             $res = file_get_contents("https://api.vk.com/method/messages.send?access_token=" . $config['token'] . "&message=" . urlencode($mes) . "&uid=" . $uid);
             sleep(1);
+
+            exit();
         }
     }
 
