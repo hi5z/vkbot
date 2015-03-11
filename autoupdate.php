@@ -57,9 +57,26 @@ try {
         }
 
         $uid = $value['uid'];
+        $message = $value['body'];
 
 
-        if ($value['out'] == '0' AND !in_array($uid, $debug)) {
+        if ($message[0] == '/')
+        {
+            $reading = $vk->api('messages.markAsRead', array(
+                'peer_id' => $uid,
+            ));
+            $typing = $vk->api('messages.setActivity', array(
+                'type' => 'typing',
+                'user_id' => $uid,
+            ));
+            sleep(1);
+            $send = $vk->api('messages.send', array(
+                'message' => cmd(substr($message, 1)),
+                'uid' => $value['uid'],
+            ));
+        }
+
+        elseif ($value['out'] == '0' AND !in_array($uid, $debug)) {
             // Сделаем выборку из базы //
             $result = $link->query("SELECT * FROM clients WHERE vkid=" . $uid);
             if ($result != FALSE) {
@@ -77,7 +94,7 @@ try {
                     'type' => 'typing',
                     'user_id' => $uid,
                 ));
-                sleep(2);
+                sleep(1);
 
 
                 $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($value['body']));

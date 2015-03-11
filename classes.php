@@ -37,10 +37,14 @@ function cmd($cmd)
 {
 
     if ($cmd == 'status') {
-        $resp = 'хуятус';
+        $resp = 'Сейчас ' . date('h:i:s A') . ' Бот функционирует нормально.';
     }
     if ($cmd == 'help') {
         $resp = 'Нет доступных команд.';
+    }
+    if ($cmd == 'curr') {
+        $curr = json_decode(file_get_contents('https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5'));
+        $resp = 'В ПриватБанке сейчас так: ' . $curr[0]->ccy . ' ' . $curr[0]->buy . ', ' . $curr[1]->ccy . ' ' . $curr[1]->buy . ', ' . $curr[2]->ccy . ' ' . $curr[2]->buy . ', ';
     }
 
     return $resp;

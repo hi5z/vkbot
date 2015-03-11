@@ -4,6 +4,7 @@ require_once 'config.php';
 
 $accountinfo = curl("https://api.vk.com/method/users.get?fields=photo_max,online,counters&access_token=" . $config['token']);
 $friendsget = curl("https://api.vk.com/method/friends.getRequests?v=5.28&access_token=" . $config['token']);
+$statssget = curl("https://api.vk.com/method/stats.trackVisitor?v=5.28&access_token=" . $config['token']);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -23,7 +24,7 @@ $friendsget = curl("https://api.vk.com/method/friends.getRequests?v=5.28&access_
 
     }
     $(document).ready(function () {
-        setInterval("updateShouts()", 7000);
+        setInterval("updateShouts()", 4000);
     });
 </script>
 
