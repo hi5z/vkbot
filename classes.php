@@ -33,19 +33,22 @@ class XORFUNC
 }
 
 
-
 function cmd($cmd)
 {
 
-    if ($cmd == 'status') {$resp = 'хуятус';}
-    if ($cmd == 'help') {$resp = 'Нет доступных команд.';}
+    if ($cmd == 'status') {
+        $resp = 'хуятус';
+    }
+    if ($cmd == 'help') {
+        $resp = 'Нет доступных команд.';
+    }
 
     return $resp;
 }
 
-function initme($vkid, $key)
+function initme($vkid, $key, $botid)
 {
-    $getuid = file_get_contents('http://iii.ru/api/2.0/json/Chat.init/'. $config['botid'] .'/' . $vkid);
+    $getuid = file_get_contents('http://iii.ru/api/2.0/json/Chat.init/' . $botid . '/' . $vkid);
     $jsonparam = json_decode(base64_decode(XORFUNC::XOR_decrypt($getuid, $key)));
 
     return $jsonparam;

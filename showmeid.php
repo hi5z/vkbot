@@ -1,10 +1,7 @@
 <?
-include_once "classes.php";
-include_once "config.php";
+require "config.php";
+require "classes.php";
 
 
-/** @noinspection PhpVoidFunctionResultUsedInspection */
-$data = initme($_GET['id']."ozoozo222", $config['key']);
-
-/** @noinspection PhpUndefinedFieldInspection */
+$data = initme($_GET['id'], $config['key'], $config['botid']);
 echo $data->result->cuid;
