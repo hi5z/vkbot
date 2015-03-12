@@ -34,9 +34,9 @@ try {
 
     // Выводим сообщения //
     // Отвечаем на 10 сообщений //
-    $i = 0;
-    foreach ((array)$messages['response'] as $key => $value) {
-        $i++;
+    echo '<h3>Последние чаты</h3>';
+    $i = 0;foreach ((array)$messages['response'] as $key => $value) {$i++;
+
         if (isset($value['uid'])) {
             ?>
 
