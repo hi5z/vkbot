@@ -1,4 +1,4 @@
-<?
+<?php
 // Отображать все ошибки или нет//
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
@@ -32,7 +32,7 @@ try {
     echo '<h3>Новости</h3>';
     foreach ((array)$wall['response']['items'] as $key => $value) {
 
-        if ($value['post_id'] != NULL ){
+        if ($value['post_id'] != null ){
             ?>
 
             <div class="panel panel-default">

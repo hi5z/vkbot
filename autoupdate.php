@@ -1,4 +1,4 @@
-<?
+<?php
 // Отображать все ошибки или нет//
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
@@ -25,6 +25,7 @@ try {
     // Получаем список последних 20 сообщений //
     $messages = $vk->api('messages.getDialogs', array(
         'count' => '20',
+        'out' => '0',
     ));
 
     // Получаем сообщения, на которые мы еще не отвечали //
@@ -35,7 +36,9 @@ try {
     // Выводим сообщения //
     // Отвечаем на 10 сообщений //
     echo '<h3>Последние чаты</h3>';
-    $i = 0;foreach ((array)$messages['response'] as $key => $value) {$i++;
+    $i = 0;
+    foreach ((array)$messages['response'] as $key => $value) {
+        $i++;
 
         if (isset($value['uid'])) {
             ?>
@@ -60,8 +63,7 @@ try {
         $message = $value['body'];
 
 
-        if ($message[0] == '/')
-        {
+        if ($message[0] == '/') {
             $reading = $vk->api('messages.markAsRead', array(
                 'peer_id' => $uid,
             ));
@@ -74,16 +76,14 @@ try {
                 'message' => cmd(substr($message, 1)),
                 'uid' => $value['uid'],
             ));
-        }
-
-        elseif ($value['out'] == '0' AND !in_array($uid, $debug)) {
+        } elseif ($value['out'] == '0' AND !in_array($uid, $debug)) {
             // Сделаем выборку из базы //
             $result = $link->query("SELECT * FROM clients WHERE vkid=" . $uid);
-            if ($result != FALSE) {
+            if ($result != false) {
                 $row = mysqli_fetch_array($result);
             }
 
-            if ($row['vkid'] == $uid AND $result != FALSE) {
+            if ($row['vkid'] == $uid AND $result != false) {
 
                 // Если есть в базе отсылаем сообщение //
 
@@ -104,7 +104,7 @@ try {
                 ));
 
 
-                if ($send['error']['error_code'] == '14' AND $config['antigate'] !== NULL) {
+                if ($send['error']['error_code'] == '14' AND $config['antigate'] !== null) {
                     // Загружаем капчу на сервер //
                     file_put_contents("captcha/captcha.jpg", file_get_contents($send['error']['captcha_img']));
                     // Уникальный ID капчи //
@@ -136,7 +136,7 @@ try {
                 $chatid = file_get_contents($config['url'] . '/showmeid.php?id=' . $uid);
 
 
-                $insert = $link->query("INSERT INTO clients VALUES (NULL, '$firstname', '$secondname', '$sex', '$chatid', '$uid')") or die("Возникла проблемка..." . mysqli_error($link));
+                $insert = $link->query("INSERT INTO clients VALUES (null, '$firstname', '$secondname', '$sex', '$chatid', '$uid')") or die("Возникла проблемка..." . mysqli_error($link));
 
                 // Находим новосозданное имя и ID сессии //
                 $result2 = $link->query("SELECT firstname, chatid, sex FROM clients WHERE vkid=" . $uid);
@@ -149,7 +149,7 @@ try {
                 if ($row2['sex'] == '2') {
                     file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
                 } elseif ($row2['sex'] == '1') {
-                    file_get_contents($config['url'] . 'sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
+                    file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
                 }
 
             }
