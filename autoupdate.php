@@ -3,7 +3,7 @@
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 
-sleep(2);
+sleep(6);
 
 require_once "classes.php";
 require_once "config.php";
@@ -96,8 +96,9 @@ try {
                 ));
                 sleep(1);
 
-
-                $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($value['body']));
+                $repquotes = array ("\"", "\'" );
+                $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
+                $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($filtered));
                 $send = $vk->api('messages.send', array(
                     'message' => strip_tags($mes),
                     'uid' => $value['uid'],
@@ -130,8 +131,8 @@ try {
                     'user_ids' => $uid,
                 ));
 
-                $firstname = $vkprofileinfo['response'][0]['first_name'];
-                $secondname = $vkprofileinfo['response'][0]['last_name'];
+                $firstname = addslashes($vkprofileinfo['response'][0]['first_name']);
+                $secondname = addslashes($vkprofileinfo['response'][0]['last_name']);
                 $sex = $vkprofileinfo['response'][0]['sex'];
                 $chatid = file_get_contents($config['url'] . '/showmeid.php?id=' . $uid);
 
