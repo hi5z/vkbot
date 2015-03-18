@@ -3,7 +3,7 @@
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 
-sleep(6);
+sleep(4);
 
 require_once "classes.php";
 require_once "config.php";
@@ -40,11 +40,20 @@ try {
     foreach ((array)$messages['response'] as $key => $value) {
         $i++;
 
+        $uid = $value['uid'];
+        $message = $value['body'];
+
+        $vkprofileinfo = $vk->api('users.get', array(
+            'name_case' => 'nom',
+            'fields' => 'sex',
+            'user_ids' => $uid,
+        ));
+
         if (isset($value['uid'])) {
             ?>
 
             <div class="panel panel-default">
-                <div class="panel-heading">Отправил <?= $value['uid'] ?>
+                <div class="panel-heading">Отправил(-а) <?=$vkprofileinfo['response'][0]['first_name']?> <?=$vkprofileinfo['response'][0]['last_name']?> (<?= $value['uid'] ?>)
                     в <?= gmdate("Y-m-d H:i:s", $value['date']) ?> <? if ($value['read_state'] == '0') {
                         echo '<span class="label label-danger">Не прочитано</span>';
                     } else {
@@ -53,14 +62,12 @@ try {
                         echo '<span class="label label-primary">Ответ отправлен</span>';
                     } ?></div>
                 <div class="panel-body">
-                    <?= $value['body'] ?>
+                    <a href="https://vk.com/im?msgid=<?= $value['mid'] ?>&sel=<?= $value['uid'] ?>"><?= $value['body'] ?></a>
                 </div>
             </div>
         <?
         }
 
-        $uid = $value['uid'];
-        $message = $value['body'];
 
 
         if ($message[0] == '/') {
@@ -125,11 +132,7 @@ try {
                 // Если нет в базе - добавляем его //
             } else {
 
-                $vkprofileinfo = $vk->api('users.get', array(
-                    'name_case' => 'nom',
-                    'fields' => 'sex',
-                    'user_ids' => $uid,
-                ));
+
 
                 $firstname = addslashes($vkprofileinfo['response'][0]['first_name']);
                 $secondname = addslashes($vkprofileinfo['response'][0]['last_name']);
