@@ -1,0 +1,60 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "b41d9970e5ca9f2a70c519e47812b739",
+    "packages": [
+        {
+            "name": "vladkens/vk",
+            "version": "v0.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vladkens/VK.git",
+                "reference": "4f1faed7cc040e0814cc585a25cf56378f449b82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vladkens/VK/zipball/4f1faed7cc040e0814cc585a25cf56378f449b82",
+                "reference": "4f1faed7cc040e0814cc585a25cf56378f449b82",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "VK": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vlad Pronsky",
+                    "email": "vladkens@yandex.ru"
+                }
+            ],
+            "description": "The PHP class for vk.com API with support OAuth.",
+            "keywords": [
+                "api",
+                "oauth",
+                "vk",
+                "vk.com"
+            ],
+            "time": "2014-01-19 16:19:30"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

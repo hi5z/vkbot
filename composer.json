@@ -1,0 +1,23 @@
+{
+  "name": "exileed/vkbot",
+  "description": "Разговорный бот для Соц. сетей на основе сервиса iii.ru",
+  "minimum-stability": "dev",
+  "license": "mit",
+  "authors": [
+    {
+      "name": "Dmitriy Kuts",
+      "email": "me@exileed.com"
+    },
+    {
+      "name": "z00k",
+      "email": "x@2ch.hk"
+    }
+  ],
+  "require": {
+    "php": ">5.4",
+    "vladkens/vk": "v0.1.7"
+  },
+  "autoload": {
+    "psr-0": {"models\\": "models/"}
+  }
+}

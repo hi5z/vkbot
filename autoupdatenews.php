@@ -1,17 +1,13 @@
 <?php
-// Отображать все ошибки или нет//
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
 
 require_once "config.php";
-require_once "vk.php";
-require_once "vkexception.php";
-
+require_once "vendor/autoload.php";
 
 $vk_config = array(
-    'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
+    'app_id' => $config['app_id'],
+    'api_secret' => $config['app_secret'],
     'access_token' => $config['token']
+
 );
 
 try {

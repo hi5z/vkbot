@@ -32,9 +32,10 @@ class XORFUNC
 
 }
 
-
+//User Commands
 function cmd($cmd)
 {
+
 
     if ($cmd == 'status') {
         $resp = 'Сейчас ' . date('h:i:s A') . ' Бот функционирует нормально.';

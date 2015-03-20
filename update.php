@@ -1,10 +1,14 @@
 <?php
-// Отображать все ошибки или нет//
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+/**
+ * @package vkbotphp
+ * @author Dmitriy Kuts <me@exileed.com>
+ * @date 3/20/2015
+ * @time 3:55 PM
+ * @link http://exileed.com
+ */
 
 require_once "config.php";
-
+require_once "vendor/autoload.php";
 
 $vk_config = array(
     'app_id' => $config['app_id'],
@@ -12,6 +16,7 @@ $vk_config = array(
     'access_token' => $config['token']
 
 );
+
 
 try {
     $vk = new \models\API($vk_config);

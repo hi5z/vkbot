@@ -1,4 +1,6 @@
 <?php
+
+namespace models;
 /*
 $filename - file path to captcha. MUST be local file. URLs not working
 $apikey   - account's API key

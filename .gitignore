@@ -1,1 +1,4 @@
 config.php
+vendor
+composer.phar
+.idea

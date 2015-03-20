@@ -5,39 +5,35 @@
 
 sleep(6);
 
-require_once "classes.php";
 require_once "config.php";
-require_once "antigate.php";
-require_once "vk.php";
-require_once "vkexception.php";
+require_once 'vendor/autoload.php';
 
 
 $vk_config = array(
-    'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
+    'app_id' => $config['app_id'],
+    'api_secret' => $config['app_secret'],
     'access_token' => $config['token']
+
 );
 
 try {
-    $vk = new VK\VK($vk_config['app_id'], $vk_config['api_secret'], $vk_config['access_token']);
+
+    $vk = new \models\API($vk_config);
 
 
     // Получаем список последних 20 сообщений //
-    $messages = $vk->api('messages.getDialogs', array(
-        'count' => '20',
-        'out' => '0',
-    ));
+    $messages = $vk->getMessage();
 
     // Получаем сообщения, на которые мы еще не отвечали //
 
     // Ставим статус Online //
-    $setonline = $vk->api('account.setOnline');
+    $vk->setOnline();
 
     // Выводим сообщения //
     // Отвечаем на 10 сообщений //
     echo '<h3>Последние чаты</h3>';
     $i = 0;
-    foreach ((array)$messages['response'] as $key => $value) {
+    foreach ((array)$messages as $key => $value) {
         $i++;
 
         if (isset($value['uid'])) {
@@ -46,11 +42,11 @@ try {
             <div class="panel panel-default">
                 <div class="panel-heading">Отправил <?= $value['uid'] ?>
                     в <?= gmdate("Y-m-d H:i:s", $value['date']) ?> <? if ($value['read_state'] == '0') {
-                        echo '<span class="label label-danger">Не прочитано</span>';
+                        echo '<span functions="label label-danger">Не прочитано</span>';
                     } else {
-                        echo '<span class="label label-success">Прочитано</span>';
+                        echo '<span functions="label label-success">Прочитано</span>';
                     } ?> <? if ($value['out'] == '1') {
-                        echo '<span class="label label-primary">Ответ отправлен</span>';
+                        echo '<span functions="label label-primary">Ответ отправлен</span>';
                     } ?></div>
                 <div class="panel-body">
                     <?= $value['body'] ?>
@@ -64,18 +60,15 @@ try {
 
 
         if ($message[0] == '/') {
-            $reading = $vk->api('messages.markAsRead', array(
-                'peer_id' => $uid,
-            ));
-            $typing = $vk->api('messages.setActivity', array(
-                'type' => 'typing',
-                'user_id' => $uid,
-            ));
+            $vk->markAsRead($uid);
+
+            $vk->setActivity($uid);
+
             sleep(1);
-            $send = $vk->api('messages.send', array(
-                'message' => cmd(substr($message, 1)),
-                'uid' => $value['uid'],
-            ));
+
+            // Не знаю зачем это нужно посылать, но пусть будет
+            $send = $vk->sendMessages($value['uid'], cmd(substr($message, 1)));
+
         } elseif ($value['out'] == '0' AND !in_array($uid, $debug)) {
             // Сделаем выборку из базы //
             $result = $link->query("SELECT * FROM clients WHERE vkid=" . $uid);
@@ -87,22 +80,15 @@ try {
 
                 // Если есть в базе отсылаем сообщение //
 
-                $reading = $vk->api('messages.markAsRead', array(
-                    'peer_id' => $uid,
-                ));
-                $typing = $vk->api('messages.setActivity', array(
-                    'type' => 'typing',
-                    'user_id' => $uid,
-                ));
+                $vk->markAsRead($uid);
+                $vk->setActivity($uid);
                 sleep(1);
 
                 $repquotes = array ("\"", "\'" );
                 $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
                 $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($filtered));
-                $send = $vk->api('messages.send', array(
-                    'message' => strip_tags($mes),
-                    'uid' => $value['uid'],
-                ));
+
+                $send = $vk->sendMessages($value['uid'], strip_tags($mes));
 
 
                 if ($send['error']['error_code'] == '14' AND $config['antigate'] !== null) {
@@ -112,28 +98,37 @@ try {
                     $captcha['id'] = $send['error']['captcha_sid'];
                     $captcha['key'] = recognize("captcha/captcha.jpg", $config['antigate'], false, "antigate.com");
 
-                    // Повторяем отправку вместе с разгаданной капчей //
-                    $send = $vk->api('messages.send', array(
-                        'message' => strip_tags($mes),
-                        'uid' => $value['uid'],
+
+                    $captcha_array = [
                         'captcha_sid' => $captcha['id'],
                         'captcha_key' => $captcha['key'],
-                    ));
+                    ];
+// Повторяем отправку вместе с разгаданной капчей //
+                    $send = $vk->sendMessages($value['uid'], strip_tags($mes), $captcha_array);
+
+
 
                 }
+
+                if ($send['error']['error_code'] == '14' AND $config['antigate'] == null) {
+
+                    file_put_contents("captcha/captcha.jpg", file_get_contents($send['error']['captcha_img']));
+
+                    $captcha['id'] = $send['error']['captcha_sid'];
+
+                    (new \models\Mail())->send($config['email'], 'Капча', 'Капча чувак', "captcha/captcha.jpg");
+
+                }
+
 
                 // Если нет в базе - добавляем его //
             } else {
 
-                $vkprofileinfo = $vk->api('users.get', array(
-                    'name_case' => 'nom',
-                    'fields' => 'sex',
-                    'user_ids' => $uid,
-                ));
+                $vkprofileinfo = $vk->getUserInfo($uid);
 
-                $firstname = addslashes($vkprofileinfo['response'][0]['first_name']);
-                $secondname = addslashes($vkprofileinfo['response'][0]['last_name']);
-                $sex = $vkprofileinfo['response'][0]['sex'];
+                $firstname = addslashes($vkprofileinfo['first_name']);
+                $secondname = addslashes($vkprofileinfo['last_name']);
+                $sex = $vkprofileinfo['sex'];
                 $chatid = file_get_contents($config['url'] . '/showmeid.php?id=' . $uid);
 
 
