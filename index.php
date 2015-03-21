@@ -14,7 +14,7 @@ $vk_config = array(
 try {
 
 
-    $vk = new \models\API($vk_config);
+    $vk = new models\API($vk_config);
     $accountinfo = $vk->getUserInfo();
     $friendsget = $vk->getFriendsRequest();
     $vk->setOnline();
@@ -22,6 +22,7 @@ try {
 
 } catch (VK\VKException $error) {
     echo $error->getMessage();
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -29,7 +30,7 @@ try {
 <head>
     <title>Бот - <?= $accountinfo['first_name'] ?> <?= $accountinfo['last_name'] ?></title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 </head>
 
 <body>
@@ -100,6 +101,7 @@ try {
             <img width="200px" src="<?= $accountinfo['photo_max'] ?>" class="img-thumbnail"/>
 
             <h3><?= $accountinfo['first_name'] ?> <?= $accountinfo['last_name'] ?></h3>
+            <h5>Статистика : </h5>
             Статус: <? if ($accountinfo['online'] == '1') {
                 echo '<font color="green">Online</font>';
             } else {

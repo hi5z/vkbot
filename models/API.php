@@ -34,11 +34,9 @@ class API
             'fields' => 'photo_max,online,counters,sex',
         ];
         if ($user_id != null)
-            $params[''] =
+            $params['user_ids'] = $user_id;
 
-            $result = $this->vk->api('users.get', [
-
-            ]);
+        $result = $this->vk->api('users.get', $params);
 
         return $result['response'][0];
 

@@ -1,7 +1,7 @@
 <?php
 // Отображать все ошибки или нет//
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 sleep(6);
 
@@ -19,7 +19,7 @@ $vk_config = array(
 try {
 
     $vk = new \models\API($vk_config);
-
+    $iii = new \models\Iii();
 
     // Получаем список последних 20 сообщений //
     $messages = $vk->getMessage();
@@ -86,7 +86,8 @@ try {
 
                 $repquotes = array ("\"", "\'" );
                 $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
-                $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($filtered));
+
+                $mes = $iii->sendMsg($row['chatid'], urlencode($filtered));
 
                 $send = $vk->sendMessages($value['uid'], strip_tags($mes));
 
@@ -129,8 +130,9 @@ try {
                 $firstname = addslashes($vkprofileinfo['first_name']);
                 $secondname = addslashes($vkprofileinfo['last_name']);
                 $sex = $vkprofileinfo['sex'];
-                $chatid = file_get_contents($config['url'] . '/showmeid.php?id=' . $uid);
 
+
+                $chatid = $iii->initMe($uid, $config['botid']);
 
                 $insert = $link->query("INSERT INTO clients VALUES (null, '$firstname', '$secondname', '$sex', '$chatid', '$uid')") or die("Возникла проблемка..." . mysqli_error($link));
 
@@ -138,14 +140,14 @@ try {
                 $result2 = $link->query("SELECT firstname, chatid, sex FROM clients WHERE vkid=" . $uid);
                 $row2 = mysqli_fetch_array($result2);
 
-                // Устанавливаем имя //
-                file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('!botsetname ' . $row2['firstname']));
+
+                $iii->sendMsg($row2['chatid'], urlencode('!botsetname ' . $row2['firstname']));
 
                 // Устанавливаем пол //
                 if ($row2['sex'] == '2') {
-                    file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я мальчик'));
+                    $iii->sendMsg($row2['chatid'], urlencode('я мальчик'));
                 } elseif ($row2['sex'] == '1') {
-                    file_get_contents($config['url'] . '/sp.php?session=' . $row2['chatid'] . '&text=' . urlencode('я девочка'));
+                    $iii->sendMsg($row2['chatid'], urlencode('я девочка'));
                 }
 
             }
