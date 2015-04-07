@@ -1,4 +1,81 @@
 <?php
+/////////////////////// ЗАЩИТА ВО ВСЕ ПОЛЯ! ////////////////////////////////////
+include 'config.php';
+
+$pass = md5($config['adminpass']);
+
+
+
+if($_COOKIE["pass"]!==$pass){
+    sleep(1);
+
+    if(isset($_POST["pass"])){
+        setcookie("pass",md5($_POST["pass"]), time()+3600*24*14);
+
+        die('<meta http-equiv="refresh" content="1; url=./">');
+    }
+
+    ?>
+
+    <html>
+    <head>
+        <title>Админ-панель</title>
+        <link rel="stylesheet" href="http://hash2vote.su/css/bootstrap.css">
+        <link rel="stylesheet" href="http://hash2vote.su/css/bootstrap-theme.css">
+        <link rel="stylesheet" href="http://hash2vote.su/css/admin.css">
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="http://hash2vote.su/js/bootstrap.min.js"></script>
+        <script src="http://hash2vote.su/js/TweenLite.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $(document).mousemove(function(event) {
+                    TweenLite.to($("body"),
+                        .5, {
+                            css: {
+                                backgroundPosition: "" + parseInt(event.pageX / 8) + "px " + parseInt(event.pageY / '12') + "px, " + parseInt(event.pageX / '15') + "px " + parseInt(event.pageY / '15') + "px, " + parseInt(event.pageX / '30') + "px " + parseInt(event.pageY / '30') + "px",
+                                "background-position": parseInt(event.pageX / 8) + "px " + parseInt(event.pageY / 12) + "px, " + parseInt(event.pageX / 15) + "px " + parseInt(event.pageY / 15) + "px, " + parseInt(event.pageX / 30) + "px " + parseInt(event.pageY / 30) + "px"
+                            }
+                        })
+                })
+            })
+        </script>
+    </head>
+    <body>
+    <div class="container">
+        <div class="row vertical-offset-100">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="row-fluid user-row">
+                            <img src="http://s11.postimg.org/7kzgji28v/logo_sm_2_mr_1.png" class="img-responsive" alt="Le mew wuz here"/>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <form method="POST" accept-charset="UTF-8" role="form" class="form-signin">
+                            <fieldset>
+                                <label class="panel-login">
+                                    <div class="login_result"></div>
+                                </label>
+                                <input class="form-control" placeholder="Введите пароль" id="password" name="pass" type="password">
+                                <br><br>
+                                <input class="btn btn-lg btn-success btn-block" type="submit" id="submit" value="Войти »">
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+
+    </html>
+
+    <?php
+    exit();
+}
+
+//////////////////////// КОНЕЦ ЗАЩИТЫ ////////////////////////////////////////
+
 require_once 'classes.php';
 require_once 'config.php';
 require_once "vk.php";
@@ -61,10 +138,11 @@ try {
         $('#check').change(function(){
             if ($('#check').is(':checked')) {
                 $('#status').text('Работает');
+                $('#isonline').text('Online*');
                 $('#preloader').show("slow");
                 $('#notrunned').hide("slow");
                 $('#shoutbox').load('autoupdate.php');
-                interval = setInterval("updateShouts()", 4000);
+                interval = setInterval("updateShouts()", 10000);
             } else {
                 $('#status').text('Не работает');
                 clearInterval(interval);
@@ -83,10 +161,36 @@ try {
         $('#friends').change(function(){
             if ($('#friends').is(':checked')) {
                 $('#friendsadd').load('autofriends.php');
-                interval = setInterval("updateFriends()", 1800000);
+                interval = setInterval("updateFriends()", 900000);
             } else {
                 clearInterval(interval);
             }})
+
+
+
+        $('.reserve-button').click(function(){
+
+            var book_id = $(this).parent().data('id');
+
+            $.ajax
+            ({
+                url: 'reservebook.php',
+                data: {"bookID": book_id},
+                type: 'post',
+                success: function(result)
+                {
+                    $('.modal-box').text(result).fadeIn(700, function()
+                    {
+                        setTimeout(function()
+                        {
+                            $('.modal-box').fadeOut();
+                        }, 2000);
+                    });
+                }
+            });
+        });
+
+
     });
 
 </script>
@@ -96,19 +200,18 @@ try {
     <div class="row">
 
         <div class="col-lg-4">
-            <h3>Информация</h3>
-            <b>Автоматический чат?</b> <input type="checkbox" id="check" /><br />
-            <b>Рандомные репосты?</b>  <input type="checkbox" id="reposts" /><br />
-            <b>Автоподтверждение друзей?</b>  <input type="checkbox" id="friends" /><br />
-
-            <img width="200px" src="<?= $accountinfo['response'][0]['photo_max'] ?>" class="img-thumbnail"/>
-
             <h3><?= $accountinfo['response'][0]['first_name'] ?> <?= $accountinfo['response'][0]['last_name'] ?></h3>
-            Статус: <? if ($accountinfo['response'][0]['online'] == '1') {
+            <img width="200px" src="<?= $accountinfo['response'][0]['photo_max'] ?>" class="img-thumbnail"/> <br />
+<form method="get">
+            <b>Автоматический чат?</b> <input type="checkbox" id="check" name="check" /><br />
+            <b>Рандомные репосты?</b>  <input type="checkbox" id="reposts" name="reposts" /><br />
+            <b>Автоподтверждение друзей?</b>  <input type="checkbox" id="friends" name="friends" /><br />
+</form>
+            Статус: <span id="isonline"><? if ($accountinfo['response'][0]['online'] == '1') {
                 echo '<font color="green">Online</font>';
             } else {
                 echo '<font color="red">Offline</font>';
-            } ?><br/>
+            } ?></span><br/>
             Друзей: <?= $accountinfo['response'][0]['counters']['friends'] ?><br/>
             Друзей онлайн: <?= $accountinfo['response'][0]['counters']['online_friends'] ?><br/>
             Подписчиков: <?= $accountinfo['response'][0]['counters']['followers'] ?><br/>
@@ -129,7 +232,6 @@ try {
                     </div>
                     <div class="media-body">
                         <h4 class="media-heading"><?= $friendinfo['response'][0]['first_name'] ?> <?= $friendinfo['response'][0]['last_name'] ?></h4>
-
                     </div>
                 </div>
             <?
@@ -168,5 +270,7 @@ try {
 <div id="friendsadd" style="display:none;">&nbsp;</div>
 </body>
 
-
+<footer>
+    <div class="col-md-12 text-center">vkbotphp v0.1.7</div>
+</footer>
 </html>

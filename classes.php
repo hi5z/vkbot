@@ -32,6 +32,14 @@ class XORFUNC
 
 }
 
+class liveupdate
+{
+   function messages()
+   {
+
+   }
+}
+
 
 function cmd($cmd)
 {

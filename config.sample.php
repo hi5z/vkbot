@@ -1,23 +1,42 @@
-<?
+<?php
+/*
+ВНИМАНИЕ!
+Значения {значение} вы должны поменять на свои. 
+	Например: {USER} меняем на meow или {DATABASENAME} меняем на bot
 
-$link = mysqli_connect("HOST","USER","PASSWORD","DATABASENAME") or die("Error " . mysqli_error($link)); 
+Для того, чтобы бот заработал необходимо выполнить все по инструкции здесь - https://github.com/z00k/vkbotphp
+*/
+
+$link = mysqli_connect("{HOST}","{USER}","{PASSWORD}","{DATABASENAME}") or die("Ошибка " . mysqli_error($link)); 
 mysqli_set_charset($link,"utf8");
 
-// // Variables // //
-// ANTIGATE.COM КЛЮЧ //
-$config['antigate'] = ""; // не обязательное поле. если оставите пустым - капчу решать не будет
+/* Автоматически решать капчу с помощью сервиса Antigate (можно оставить пустым если нет ключа) */
+$config['antigate'] = "";
 
-// Уникальный token профиля вконтакте //
-$config['token'] = "VK_API_TOKEN";
+/* Пароль к главной странице */
+$config['adminpass'] = "meowisthebest";
 
-// Ключ для декриптования ответов с iii.ru //
-$config['key'] = "some very-very long string without any non-latin characters due to different string representations inside of variable programming languages"; // здесь ничего никогда не нужно менять. просто не трогайте
+/* Access token профиля ВКонтакте */
+$config['token'] = "{Ваш Access Token к профилю ВКонтакте}";
 
-// ID БОТА НА САЙТЕ iii.ru //
-$config['botid'] = 'ID_БОТА_С_САЙТА_iii.ru'; // ID бота. если нет своего используйте мой - 6804a238-2f99-4e1a-9a38-d90b71401b88 только ваш бот будет представляться Ларисой.
+/* ID инфа на сайте iii.ru */
+$config['botid'] = '{ID инфа на сайте iii.ru}';
 
-// URL ХОСТА //
+/* ID пользователей, которым бот не будет отвечать */
+$debug = array(5269992, 1);
+
+
+
+
+
+
+
+
+
+
+
+
+/* Эти значения не меняем */
 $config['url'] = 'http://' . $_SERVER['HTTP_HOST'];
+$config['key'] = "some very-very long string without any non-latin characters due to different string representations inside of variable programming languages";
 
-// ID пользователей, которым бот не будет отвечать //
-$debug = array("5269222", "1");

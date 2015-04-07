@@ -62,7 +62,7 @@ class VK
 
         if (!is_null($this->access_token)) {
             if (!$this->checkAccessToken()) {
-                throw new VKException('Invalide access token.');
+                throw new VKException('Invalid access token.');
             } else {
                 $this->auth = true;
             }

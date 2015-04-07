@@ -20,7 +20,7 @@ try {
 
     // Получаем список последних 20 новостей //
     $wall = $vk->api('newsfeed.get', array(
-        'count' => '30',
+        'count' => '10',
         'return_banned' => '0',
     ));
 
@@ -30,18 +30,20 @@ try {
 
     // Выводим ленту //
     echo '<h3>Новости</h3>';
+    $i = 99;
     foreach ((array)$wall['response']['items'] as $key => $value) {
 
         if ($value['post_id'] != null ){
             ?>
 
             <div class="panel panel-default">
-                <div class="panel-heading">Новость</div>
+                <div class="panel-heading"><a href="http://vk.com/wall<?= $value['source_id'] ?>_<?= $value['post_id'] ?>" target="_blank">http://vk.com/wall<?= $value['source_id'] ?>_<?= $value['post_id'] ?></a> <br />Вероятность репоста: <span class="badge"><?=$i?>%</span></div>
                 <div class="panel-body">
-                    <a href="http://vk.com/wall<?= $value['source_id'] ?>_<?= $value['post_id'] ?>">Ссылка на новость.</a>
+                    <?= $value['text'] ?><hr />
+                    <span class="text-muted">ВНИМАНИЕ! Если нет текста, то скорее всего в посте присутствует картинка или другое прикрепление.</span>
                 </div>
             </div>
-        <?
+        <?  $i= $i/2;
         }
     }
 } catch (VK\VKException $error) {
