@@ -271,6 +271,6 @@ try {
 </body>
 
 <footer>
-    <div class="col-md-12 text-center">vkbotphp v0.1.7</div>
+    <div class="col-md-12 text-center">vkbotphp v0.1.7.1</div>
 </footer>
 </html>
