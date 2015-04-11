@@ -77,7 +77,7 @@ try {
                 'type' => 'typing',
                 'user_id' => $uid,
             ));
-            sleep(1,3);
+            sleep(rand(1,3));
             $send = $vk->api('messages.send', array(
                 'message' => cmd(substr($message, 1)),
                 'uid' => $value['uid'],
@@ -96,12 +96,12 @@ try {
                 $reading = $vk->api('messages.markAsRead', array(
                     'peer_id' => $uid,
                 ));
-                sleep(1);
+                sleep(rand(1,3));
                 $typing = $vk->api('messages.setActivity', array(
                     'type' => 'typing',
                     'user_id' => $uid,
                 ));
-                sleep(1,4);
+                sleep(rand(1,3));
 
                 $repquotes = array ("\"", "\'" ); // фильтруем сторонние символы
                 $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
@@ -186,7 +186,7 @@ try {
 
             }
 
-            sleep(1,4);
+            sleep(rand(1,3));
         }
 
 
