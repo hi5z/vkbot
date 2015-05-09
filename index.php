@@ -78,13 +78,12 @@ if($_COOKIE["pass"]!==$pass){
 
 require_once 'classes.php';
 require_once 'config.php';
-require_once "vk.php";
-require_once "vkexception.php";
+require_once 'vk.php';
+require_once 'vkexception.php';
 
 
 $vk_config = array(
     'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
     'access_token' => $config['token']
 );
 
@@ -94,7 +93,7 @@ try {
     $accountinfo = $vk->api('users.get', array(
         'fields' => 'photo_max,online,counters',
     ));
-    $friendsget = $vk->api('friends.getRequests');
+    sleep(rand(1,2));
     $statssget = $vk->api('stats.trackVisitor');
 
 
@@ -167,30 +166,6 @@ try {
             }})
 
 
-
-        $('.reserve-button').click(function(){
-
-            var book_id = $(this).parent().data('id');
-
-            $.ajax
-            ({
-                url: 'reservebook.php',
-                data: {"bookID": book_id},
-                type: 'post',
-                success: function(result)
-                {
-                    $('.modal-box').text(result).fadeIn(700, function()
-                    {
-                        setTimeout(function()
-                        {
-                            $('.modal-box').fadeOut();
-                        }, 2000);
-                    });
-                }
-            });
-        });
-
-
     });
 
 </script>
@@ -220,7 +195,6 @@ try {
             <h3>Заявки в друзья</h3>
             <?
             for ($i = 0; $i < count($friendsget['response']); $i++) {
-
                 $friendinfo = curl("https://api.vk.com/method/users.get?fields=photo_max&user_ids=" . $friendsget['response'][$i]);
                 ?>
                 <div class="media">
@@ -271,6 +245,6 @@ try {
 </body>
 
 <footer>
-    <div class="col-md-12 text-center">vkbotphp v0.1.7.1</div>
+    <div class="col-md-12 text-center">vkbotphp v0.1.7</div>
 </footer>
 </html>
