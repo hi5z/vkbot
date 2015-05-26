@@ -81,38 +81,19 @@ if($_COOKIE["pass"]!==$pass){
 
 require_once 'classes.php';
 require_once 'config.php';
-<<<<<<< HEAD
 require 'vk.api.php';
 
 
 define('VK_TOKEN',$config['token']);
 $vk = new VK(VK_TOKEN);
-=======
-require_once 'vk.php';
-require_once 'vkexception.php';
-
-
-$vk_config = array(
-    'app_id' => '4798482',
-    'access_token' => $config['token']
-);
->>>>>>> origin/master
 
 $accountinfo = $vk->request('users.get', array(
     'fields' => 'photo_max,online,counters'
 ));
 
-<<<<<<< HEAD
 $friendsget = $vk->request('friends.getRequests', array(
     'out' => '0'
 ));
-=======
-    $accountinfo = $vk->api('users.get', array(
-        'fields' => 'photo_max,online,counters',
-    ));
-    sleep(rand(1,2));
-    $statssget = $vk->api('stats.trackVisitor');
->>>>>>> origin/master
 
 
 ?>
