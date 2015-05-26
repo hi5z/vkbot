@@ -242,6 +242,6 @@ $friendsget = $vk->request('friends.getRequests', array(
 </body>
 
 <footer>
-    <div class="col-md-12 text-center">vkbotphp v0.1.8</div>
+    <div class="col-md-12 text-center">vkbotphp v0.1.8.1</div>
 </footer>
 </html>
