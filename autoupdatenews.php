@@ -4,27 +4,20 @@
 //ini_set('display_errors', 1);
 
 require_once "config.php";
-require_once "vk.php";
-require_once "vkexception.php";
+require_once "vk.api.php";
 
 
-$vk_config = array(
-    'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
-    'access_token' => $config['token']
-);
-
-try {
-    $vk = new VK\VK($vk_config['app_id'], $vk_config['api_secret'], $vk_config['access_token']);
+define('VK_TOKEN',$config['token']);
+$vk = new VK(VK_TOKEN);
 
 
     // Получаем список последних 20 новостей //
-    $wall = $vk->api('newsfeed.get', array(
+    $wall = $vk->request('newsfeed.get', array(
         'count' => '10',
         'return_banned' => '0',
     ));
 
-    $repost = $vk->api('wall.repost', array(
+    $repost = $vk->request('wall.repost', array(
         'object' => 'wall' . $wall['response']['items'][0]['source_id'] .'_'. $wall['response']['items'][0]['post_id'],
     ));
 
@@ -46,6 +39,3 @@ try {
         <?  $i= $i/2;
         }
     }
-} catch (VK\VKException $error) {
-    echo $error->getMessage();
-}

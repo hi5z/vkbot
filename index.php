@@ -1,8 +1,11 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 /////////////////////// ЗАЩИТА ВО ВСЕ ПОЛЯ! ////////////////////////////////////
 include 'config.php';
 
 $pass = md5($config['adminpass']);
+
 
 
 
@@ -78,29 +81,21 @@ if($_COOKIE["pass"]!==$pass){
 
 require_once 'classes.php';
 require_once 'config.php';
-require_once "vk.php";
-require_once "vkexception.php";
+require 'vk.api.php';
 
 
-$vk_config = array(
-    'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
-    'access_token' => $config['token']
-);
+define('VK_TOKEN',$config['token']);
+$vk = new VK(VK_TOKEN);
 
-try {
-    $vk = new VK\VK($vk_config['app_id'], $vk_config['api_secret'], $vk_config['access_token']);
+$accountinfo = $vk->request('users.get', array(
+    'fields' => 'photo_max,online,counters'
+));
 
-    $accountinfo = $vk->api('users.get', array(
-        'fields' => 'photo_max,online,counters',
-    ));
-    $friendsget = $vk->api('friends.getRequests');
-    $statssget = $vk->api('stats.trackVisitor');
+$friendsget = $vk->request('friends.getRequests', array(
+    'out' => '0'
+));
 
 
-} catch (VK\VKException $error) {
-    echo $error->getMessage();
-}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -167,30 +162,6 @@ try {
             }})
 
 
-
-        $('.reserve-button').click(function(){
-
-            var book_id = $(this).parent().data('id');
-
-            $.ajax
-            ({
-                url: 'reservebook.php',
-                data: {"bookID": book_id},
-                type: 'post',
-                success: function(result)
-                {
-                    $('.modal-box').text(result).fadeIn(700, function()
-                    {
-                        setTimeout(function()
-                        {
-                            $('.modal-box').fadeOut();
-                        }, 2000);
-                    });
-                }
-            });
-        });
-
-
     });
 
 </script>
@@ -219,8 +190,8 @@ try {
             <hr />
             <h3>Заявки в друзья</h3>
             <?
+            if ($friendsget['response'] != null) {
             for ($i = 0; $i < count($friendsget['response']); $i++) {
-
                 $friendinfo = curl("https://api.vk.com/method/users.get?fields=photo_max&user_ids=" . $friendsget['response'][$i]);
                 ?>
                 <div class="media">
@@ -235,7 +206,7 @@ try {
                     </div>
                 </div>
             <?
-            } ?>
+            } } else { echo 'Заявок в друзья нет';}?>
         </div>
 
         <div class="col-lg-4" id="shoutbox">
@@ -271,6 +242,6 @@ try {
 </body>
 
 <footer>
-    <div class="col-md-12 text-center">vkbotphp v0.1.7.1</div>
+    <div class="col-md-12 text-center">vkbotphp v0.1.7</div>
 </footer>
 </html>

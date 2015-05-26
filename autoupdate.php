@@ -1,27 +1,20 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 
 require_once "classes.php";
 require_once "config.php";
 require_once "antigate.php";
-require_once "vk.php";
-require_once "vkexception.php";
+require_once "vk.api.php";
 
 
-$vk_config = array(
-    'app_id' => '4798482',
-    'api_secret' => 'yat6sCVTs6g4D8nCgWSJ',
-    'access_token' => $config['token']
-);
-
-try {
-    $vk = new VK\VK($vk_config['app_id'], $vk_config['api_secret'], $vk_config['access_token']);
+define('VK_TOKEN',$config['token']);
+$vk = new VK(VK_TOKEN);
 
 
     // Получаем список последних 20 сообщений //
-    $messages = $vk->api('messages.getDialogs', array(
+    $messages = $vk->request('messages.getDialogs', array(
         'count' => '12',
     ));
 
@@ -29,20 +22,18 @@ try {
 
     // Ставим статус Online //
     if (rand(1, 20) == 10) {
-    $setonline = $vk->api('account.setOnline');
+    $setonline = $vk->request('account.setOnline');
     }
 
     // Выводим сообщения //
     // Отвечаем на 10 сообщений //
     echo '<h3>Последние чаты</h3>';
-    $i = 0;
-    foreach ((array)$messages['response'] as $key => $value) {
-        $i++;
 
+    foreach ((array)$messages['response'] as $key => $value) {
         $uid = $value['uid'];
         $message = $value['body'];
 
-        $vkprofileinfo = $vk->api('users.get', array(
+        $vkprofileinfo = $vk->request('users.get', array(
             'name_case' => 'nom',
             'fields' => 'sex,photo_50,bdate,city,country',
             'user_ids' => $uid,
@@ -70,15 +61,15 @@ try {
 
 
         if ($message[0] == '/') {
-            $reading = $vk->api('messages.markAsRead', array(
+            $reading = $vk->request('messages.markAsRead', array(
                 'peer_id' => $uid,
             ));
-            $typing = $vk->api('messages.setActivity', array(
+            $typing = $vk->request('messages.setActivity', array(
                 'type' => 'typing',
                 'user_id' => $uid,
             ));
-            sleep(rand(1,3));
-            $send = $vk->api('messages.send', array(
+            sleep(1);
+            $send = $vk->request('messages.send', array(
                 'message' => cmd(substr($message, 1)),
                 'uid' => $value['uid'],
             ));
@@ -93,20 +84,20 @@ try {
 
                 // Если есть в базе отсылаем сообщение //
 
-                $reading = $vk->api('messages.markAsRead', array(
+                $reading = $vk->request('messages.markAsRead', array(
                     'peer_id' => $uid,
                 ));
-                sleep(rand(1,3));
-                $typing = $vk->api('messages.setActivity', array(
+                sleep(1);
+                $typing = $vk->request('messages.setActivity', array(
                     'type' => 'typing',
                     'user_id' => $uid,
                 ));
-                sleep(rand(1,3));
+                sleep(1);
 
                 $repquotes = array ("\"", "\'" ); // фильтруем сторонние символы
                 $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
                 $mes = file_get_contents($config['url'] . '/sp.php?session=' . $row['chatid'] . '&text=' . urlencode($filtered));
-                $send = $vk->api('messages.send', array(
+                $send = $vk->request('messages.send', array(
                     'message' => strip_tags($mes),
                     'uid' => $value['uid'],
                 ));
@@ -120,7 +111,7 @@ try {
                     $captcha['key'] = recognize("captcha/captcha.jpg", $config['antigate'], false, "antigate.com");
 
                     // Повторяем отправку вместе с разгаданной капчей //
-                    $send = $vk->api('messages.send', array(
+                    $send = $vk->request('messages.send', array(
                         'message' => strip_tags($mes),
                         'uid' => $value['uid'],
                         'captcha_sid' => $captcha['id'],
@@ -136,7 +127,7 @@ try {
                     $captcha['key'] = $_GET['key'];
 
                         // Повторяем отправку вместе с разгаданной капчей //
-                        $send = $vk->api('messages.send', array(
+                        $send = $vk->request('messages.send', array(
                             'message' => strip_tags($mes),
                             'uid' => $value['uid'],
                             'captcha_sid' => $captcha['id'],
@@ -186,11 +177,7 @@ try {
 
             }
 
-            sleep(rand(1,3));
+            sleep(1);
         }
 
-
     }
-} catch (VK\VKException $error) {
-    echo $error->getMessage();
-}

@@ -17,10 +17,10 @@ $config['antigate'] = "";
 $config['adminpass'] = "meowisthebest";
 
 /* Access token профиля ВКонтакте */
-$config['token'] = "{Ваш Access Token к профилю ВКонтакте}";
+$config['token'] = "Ваш Access Token к профилю ВКонтакте";
 
 /* ID инфа на сайте iii.ru */
-$config['botid'] = '{ID инфа на сайте iii.ru}';
+$config['botid'] = "ID инфа на сайте iii.ru";
 
 /* ID пользователей, которым бот не будет отвечать */
 $debug = array(5269992, 1);
