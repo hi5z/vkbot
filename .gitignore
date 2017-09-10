@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 config.php
 vendor
 composer.phar
 .idea
+=======
+config.php
+.DS_Store
+>>>>>>> master
