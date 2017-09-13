@@ -1,12 +1,16 @@
 <?php
-// Отображать все ошибки или нет//
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-sleep(6);
+/**
+ * @package vkbotphp
+ * @author Dmitriy Kuts <me@exileed.com>
+ * @date 3/20/2015
+ * @time 3:55 PM
+ * @link http://exileed.com
+ */
 
 require_once "config.php";
-require_once 'vendor/autoload.php';
+require_once "vendor/autoload.php";
+
+sleep(6);
 
 
 $vk_config = array(
@@ -21,6 +25,7 @@ try {
     $vk = new \models\API($vk_config);
     $iii = new \models\Iii();
 
+
     // Получаем список последних 20 сообщений //
     $messages = $vk->getMessage();
 
@@ -31,29 +36,9 @@ try {
 
     // Выводим сообщения //
     // Отвечаем на 10 сообщений //
-    echo '<h3>Последние чаты</h3>';
     $i = 0;
     foreach ((array)$messages as $key => $value) {
         $i++;
-
-        if (isset($value['uid'])) {
-            ?>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">Отправил <?= $value['uid'] ?>
-                    в <?= gmdate("Y-m-d H:i:s", $value['date']) ?> <? if ($value['read_state'] == '0') {
-                        echo '<span functions="label label-danger">Не прочитано</span>';
-                    } else {
-                        echo '<span functions="label label-success">Прочитано</span>';
-                    } ?> <? if ($value['out'] == '1') {
-                        echo '<span functions="label label-primary">Ответ отправлен</span>';
-                    } ?></div>
-                <div class="panel-body">
-                    <?= $value['body'] ?>
-                </div>
-            </div>
-        <?
-        }
 
         $uid = $value['uid'];
         $message = $value['body'];
@@ -84,8 +69,8 @@ try {
                 $vk->setActivity($uid);
                 sleep(1);
 
-                $repquotes = array ("\"", "\'" );
-                $filtered = addslashes(str_replace( $repquotes , '', $value['body'] ));
+                $repquotes = array("\"", "\'");
+                $filtered = addslashes(str_replace($repquotes, '', $value['body']));
 
                 $mes = $iii->sendMsg($row['chatid'], urlencode($filtered));
 
@@ -106,7 +91,6 @@ try {
                     ];
 // Повторяем отправку вместе с разгаданной капчей //
                     $send = $vk->sendMessages($value['uid'], strip_tags($mes), $captcha_array);
-
 
 
                 }
